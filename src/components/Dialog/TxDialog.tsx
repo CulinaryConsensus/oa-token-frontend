@@ -21,7 +21,7 @@ type Props = {
 const TxDialog = ({ hash, isOpen, onClose }: Props) => {
   return (
     <AlertDialog open={isOpen}>
-      <AlertDialogContent className="bg-primary-content text-white">
+      <AlertDialogContent className="z-[100] bg-primary-content text-white">
         <AlertDialogHeader>
           <button className="btn btn-circle btn-ghost ml-auto">
             <XIcon onClick={onClose} />
