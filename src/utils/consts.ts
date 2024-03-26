@@ -1,9 +1,9 @@
 import { Abi, Address } from "viem";
 
-export const OATAddress: Address = "0xeaa87fdf35a041963a1902dcc26bbaa2386a6800";
+export const OATAddress: Address = "0xEAa87fdf35A041963a1902dCc26bBAa2386a6800";
 
 export const OACollectionAddress: Address =
-  "0x4c275ade386af17276834579b1a68146cef3c770";
+  "0x4C275aDE386Af17276834579b1A68146cef3C770";
 
 export const OATokenABI = [
   {
