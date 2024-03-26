@@ -91,7 +91,6 @@ const YourNFTs = () => {
   }
 
   return (
-    !isLoading &&
     tokenIds.length > 0 && (
       <div className="mx-auto flex max-w-7xl flex-col p-5 2xl:max-w-full">
         {!isLoading && tokenIds.length !== 0 ? (
