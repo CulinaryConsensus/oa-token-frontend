@@ -59,7 +59,7 @@ export default function NavBar() {
                 {(!!currentSupply &&
                   !isTotalSupplyPending &&
                   formatEther(currentSupply as bigint)) ||
-                  0}{" "}
+                  0}
                 / 5 000 000
               </span>
             )}
@@ -75,7 +75,9 @@ export default function NavBar() {
               <span className="text-lg font-bold">
                 {(!!currentTokenBalance &&
                   !isBalancePending &&
-                  formatEther(currentTokenBalance as bigint)) ||
+                  parseFloat(
+                    formatEther(currentTokenBalance as bigint)
+                  ).toFixed(2)) ||
                   0}
               </span>
             )}
