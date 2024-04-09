@@ -28,10 +28,15 @@ export default function NavBar() {
 
   return (
     <header className="navbar sticky top-0 z-[100] w-full bg-primary-content">
-      <div className="navbar-start gap-3">
+      <nav className="navbar-start gap-3">
         <NavButton text={"My OAs"} href={"/my-oas"} />
         <NavButton text={"Deposited OAs"} href={"/deposited-oas"} />
-      </div>
+        <NavButton
+          target="_blank"
+          text={"Forge Pool"}
+          href="https://www.forge.trade/#/add/0xd4949664cd82660aae99bedc034a0dea8a0bd517/0xeaa87fdf35a041963a1902dcc26bbaa2386a6800"
+        />
+      </nav>
       <div className="navbar-center gap-3">
         <nav className="grid-flow-col gap-4 md:place-self-center md:justify-self-end">
           <Link
