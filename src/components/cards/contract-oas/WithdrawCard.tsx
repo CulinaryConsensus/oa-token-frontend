@@ -1,13 +1,18 @@
 "use client";
 import Image from "next/image";
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import {
   CardBody,
   CardContainer,
   CardItem,
 } from "@/components/cards/contract-oas/WithdrawCardDefinitions";
 import apeProfile from "@/public/apeProfile.svg";
-import { ApeCategory, ApePricesStrings, OATokenConfig } from "@/utils/consts";
+import {
+  ApeCategory,
+  ApePricesStrings,
+  OATokenConfig,
+  OAWithdrawerConfig,
+} from "@/utils/consts";
 import {
   useAccount,
   useReadContract,
@@ -16,7 +21,7 @@ import {
 } from "wagmi";
 import { useQueryClient } from "@tanstack/react-query";
 import { Meteors } from "@/components/Meteor/Meteor";
-import { Address, formatEther } from "viem";
+import { Address, formatEther, parseUnits } from "viem";
 import { cn } from "@/utils/cn";
 import orbitMarket from "@/public/orbitMarketLogo.svg";
 import Link from "next/link";
@@ -44,21 +49,66 @@ export function WithdrawCard({
       args: [address],
     });
 
+  const { data: allowance, isPending: isAllowancePending } = useReadContract({
+    ...OATokenConfig,
+    functionName: "allowance",
+    args: [address, OAWithdrawerConfig.address],
+  });
+
+  const {
+    data: withdrawHash,
+    writeContract: withdrawNFT,
+    isPending: isWithdrawPending,
+  } = useWriteContract();
+
+  const {
+    data: approvalHash,
+    writeContract: approveBalance,
+    isPending: isApprovePending,
+  } = useWriteContract();
+  const { isLoading: isConfirmingApprove, isSuccess: isConfirmedApproved } =
+    useWaitForTransactionReceipt({
+      hash: approvalHash,
+    });
+  const onApproveAllowance = useCallback(() => {
+    approveBalance({
+      ...OATokenConfig,
+      functionName: "approve",
+      args: [
+        OAWithdrawerConfig.address,
+        parseUnits(ApePricesStrings[category], 18),
+      ],
+    });
+  }, [approveBalance, nftId]);
+
+  const handleWithdraw = () => {
+    withdrawNFT({
+      ...OAWithdrawerConfig,
+      functionName: "withdraw",
+      args: [nftId, parseUnits(ApePricesStrings[category], 18)], //get type from nft selected
+    });
+  };
+  const { isLoading: isConfirmingWithdraw, isSuccess: isConfirmedWithdraw } =
+    useWaitForTransactionReceipt({
+      hash: withdrawHash,
+    });
+
   const insufficientTokens =
     isConnected &&
     !isBalancePending &&
     Number(formatEther(currentTokenBalance as bigint)) >=
       Number(ApePricesStrings[category]);
-  const {
-    data: withdrawHash,
-    writeContract,
-    isPending: isWithdrawPending,
-  } = useWriteContract();
 
-  const { isLoading: isConfirmingWithdraw, isSuccess: isConfirmedWithdraw } =
-    useWaitForTransactionReceipt({
-      hash: withdrawHash,
-    });
+  useEffect(() => {
+    const confirmedApproval = async () => {
+      if (isConfirmedApproved) {
+        setDialogTxHash(approvalHash!);
+        setIsDialogOpen(true);
+        await queryClient.invalidateQueries();
+      }
+    };
+    confirmedApproval();
+  }, [isConfirmingApprove]);
 
   useEffect(() => {
     const confirmedWithdraw = async () => {
@@ -71,14 +121,7 @@ export function WithdrawCard({
     confirmedWithdraw();
   }, [isConfirmingWithdraw]);
 
-  const handleWithdraw = () => {
-    writeContract({
-      ...OATokenConfig,
-      functionName: "withdrawNFT",
-      args: [nftId], //get type from nft selected
-    });
-  };
-
+  console.log(allowance);
   return (
     <CardContainer className="inter-var">
       <CardBody className="group/card relative h-auto w-auto rounded-xl border border-black/[0.1] bg-gray-50 p-6 dark:border-white/[0.2] dark:bg-black dark:hover:shadow-2xl dark:hover:shadow-emerald-500/[0.1]  ">
@@ -136,33 +179,54 @@ export function WithdrawCard({
                 (OAT)
               </span>
             </CardItem>
-            <button
-              onClick={handleWithdraw}
-              style={{ transform: " translateZ(20px)" }}
-              disabled={
-                isConfirmingWithdraw ||
-                !isConnected ||
-                !insufficientTokens ||
-                isWithdrawPending
-              }
-              className={cn(
-                "inline-flex h-12 items-center justify-center rounded-lg  border px-5 text-xl font-bold text-white transition-colors md:btn-md lg:btn-md",
-                {
-                  "animate-shimmer border-slate-800 bg-[linear-gradient(110deg,#000103,45%,#1e2631,55%,#000103)] bg-[length:200%_100%]":
-                    isConnected && !isConfirmingWithdraw,
-                  "cursor-not-allowed opacity-50":
-                    !isConnected ||
-                    isConfirmingWithdraw ||
-                    !insufficientTokens ||
-                    isWithdrawPending,
+            {!isAllowancePending &&
+            allowance &&
+            Number(formatEther(allowance as bigint) || "0") <
+              Number(ApePricesStrings[category]) ? (
+              <button
+                onClick={onApproveAllowance}
+                disabled={isApprovePending}
+                className={cn(
+                  "inline-flex h-12 animate-shimmer items-center justify-center rounded-lg border border-slate-500 bg-[linear-gradient(110deg,#000103,45%,#1e2631,55%,#000103)] bg-[length:200%_100%] px-5 text-xl font-bold text-white transition-colors",
+                  {
+                    "cursor-not-allowed opacity-50": isApprovePending,
+                  }
+                )}
+              >
+                Approve
+                {isApprovePending && (
+                  <span className="loading loading-spinner loading-md ml-2"></span>
+                )}
+              </button>
+            ) : (
+              <button
+                onClick={handleWithdraw}
+                style={{ transform: " translateZ(20px)" }}
+                disabled={
+                  isConfirmingWithdraw ||
+                  !isConnected ||
+                  !insufficientTokens ||
+                  isWithdrawPending
                 }
-              )}
-            >
-              Withdraw
-              {isConfirmingWithdraw && (
-                <span className="loading loading-spinner loading-md ml-2"></span>
-              )}
-            </button>
+                className={cn(
+                  "inline-flex h-12 items-center justify-center rounded-lg  border px-5 text-xl font-bold text-white transition-colors md:btn-md lg:btn-md",
+                  {
+                    "animate-shimmer border-slate-800 bg-[linear-gradient(110deg,#000103,45%,#1e2631,55%,#000103)] bg-[length:200%_100%]":
+                      isConnected && !isConfirmingWithdraw,
+                    "cursor-not-allowed opacity-50":
+                      !isConnected ||
+                      isConfirmingWithdraw ||
+                      !insufficientTokens ||
+                      isWithdrawPending,
+                  }
+                )}
+              >
+                Withdraw
+                {isConfirmingWithdraw && (
+                  <span className="loading loading-spinner loading-md ml-2"></span>
+                )}
+              </button>
+            )}
           </div>
           <Meteors number={20} />
         </div>

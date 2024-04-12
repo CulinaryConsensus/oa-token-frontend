@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning data-rk>
+    <html lang="en" suppressHydrationWarning data-rk className="dark">
       <body className="mx-auto flex h-screen flex-col ">
         <Providers>
           <NavBar />

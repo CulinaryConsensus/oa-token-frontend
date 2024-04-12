@@ -163,7 +163,7 @@ const NFT = ({ nftID, setDialogTxHash, setIsDialogOpen }: NFTProps) => {
             )}
           </h2>
           <div className="card-actions items-center justify-between">
-            <div className="flex items-center gap-2 rounded-xl text-xs font-normal dark:text-white">
+            <div className="flex items-center gap-2 rounded-xl text-xs font-normal text-white">
               <Image
                 src={apeProfile}
                 alt="OAToken Logo"

@@ -7,6 +7,7 @@ const config: Config = {
     "node_modules/daisyui/dist/**/*.js",
     "node_modules/react-daisyui/dist/**/*.js",
   ],
+  darkMode: "selector",
   theme: {
     extend: {
       backgroundImage: {
@@ -41,7 +42,7 @@ const config: Config = {
 
   plugins: [daisyui],
   daisyui: {
-    themes: ["light", "dark"],
+    themes: ["dark"],
   },
 };
 export default config;
