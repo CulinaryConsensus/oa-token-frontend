@@ -180,21 +180,21 @@ export function WithdrawCard({
               </span>
             </CardItem>
             {!isAllowancePending &&
-            allowance &&
             Number(formatEther(allowance as bigint) || "0") <
               Number(ApePricesStrings[category]) ? (
               <button
                 onClick={onApproveAllowance}
-                disabled={isApprovePending}
+                disabled={isConfirmingApprove}
                 className={cn(
-                  "inline-flex h-12 animate-shimmer items-center justify-center rounded-lg border border-slate-500 bg-[linear-gradient(110deg,#000103,45%,#1e2631,55%,#000103)] bg-[length:200%_100%] px-5 text-xl font-bold text-white transition-colors",
+                  "inline-flex h-12 animate-shimmer items-center justify-center rounded-lg border border-slate-500 bg-[linear-gradient(110deg,#000103,45%,#1e2631,55%,#000103)] bg-[length:200%_100%] px-5 text-xl font-bold text-white transition-colors  md:btn-md lg:btn-md",
                   {
-                    "cursor-not-allowed opacity-50": isApprovePending,
+                    "cursor-not-allowed opacity-50":
+                      isApprovePending || isConfirmingApprove,
                   }
                 )}
               >
                 Approve
-                {isApprovePending && (
+                {isConfirmingApprove && (
                   <span className="loading loading-spinner loading-md ml-2"></span>
                 )}
               </button>
