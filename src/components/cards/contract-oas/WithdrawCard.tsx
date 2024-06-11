@@ -180,6 +180,7 @@ export function WithdrawCard({
               </span>
             </CardItem>
             {!isAllowancePending &&
+            allowance &&
             Number(formatEther(allowance as bigint) || "0") <
               Number(ApePricesStrings[category]) ? (
               <button
