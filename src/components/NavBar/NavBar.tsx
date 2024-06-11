@@ -10,7 +10,7 @@ import React from "react";
 import Link from "next/link";
 
 export default function NavBar() {
-  const { address: currentWalletAddress } = useAccount();
+  const { address: currentWalletAddress, isConnected } = useAccount();
   const { data: currentTokenBalance, isPending: isBalancePending } =
     useReadContract({
       ...OATokenConfig,
@@ -74,24 +74,27 @@ export default function NavBar() {
             )}
           </span>
         </span>
-        <span className="relative inline-flex h-12 overflow-hidden rounded-full p-[1px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50">
-          <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#393BB2_50%,#E2CBFF_100%)]" />
-          <span className="inline-flex h-full w-full items-center  justify-center gap-2 rounded-full bg-slate-950 px-3 py-1 text-sm font-medium text-white backdrop-blur-3xl">
-            <Image src={apeProfile} alt={"ape coin"} width={20} height={20} />
-            {isBalancePending ? (
-              <div className="skeleton h-4 w-28"></div>
-            ) : (
-              <span className="text-lg font-bold">
-                {(!!currentTokenBalance &&
-                  !isBalancePending &&
-                  parseFloat(
-                    formatEther(currentTokenBalance as bigint)
-                  ).toFixed(2)) ||
-                  0}
-              </span>
-            )}
+
+        {isConnected && (
+          <span className="relative inline-flex h-12 overflow-hidden rounded-full p-[1px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50">
+            <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#393BB2_50%,#E2CBFF_100%)]" />
+            <span className="inline-flex h-full w-full items-center  justify-center gap-2 rounded-full bg-slate-950 px-3 py-1 text-sm font-medium text-white backdrop-blur-3xl">
+              <Image src={apeProfile} alt={"ape coin"} width={20} height={20} />
+              {isBalancePending ? (
+                <div className="skeleton h-4 w-28"></div>
+              ) : (
+                <span className="text-lg font-bold">
+                  {(!!currentTokenBalance &&
+                    !isBalancePending &&
+                    parseFloat(
+                      formatEther(currentTokenBalance as bigint)
+                    ).toFixed(2)) ||
+                    0}
+                </span>
+              )}
+            </span>
           </span>
-        </span>
+        )}
         <ConnectButton showBalance={false} />
       </div>
     </header>
